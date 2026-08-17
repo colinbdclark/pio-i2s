@@ -45,6 +45,7 @@ pico_generate_pio_header(${NAME}
 set_source_files_properties(${SOURCE_FILES} PROPERTIES COMPILE_OPTIONS "-Wextra;-Wpedantic")
 
 target_link_libraries(${NAME}
+    pico_bootsel_via_double_reset
     pico_stdlib
     hardware_pio
     hardware_dma
@@ -54,6 +55,9 @@ target_link_libraries(${NAME}
 target_compile_definitions(${NAME} PRIVATE)
 
 pico_add_extra_outputs(${NAME})
+
+# On-device unit tests
+add_subdirectory(test/device)
 
 install(FILES
     ${CMAKE_CURRENT_BINARY_DIR}/${NAME}.uf2

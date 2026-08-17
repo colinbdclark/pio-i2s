@@ -1,13 +1,16 @@
 /*
-Copyright 2025 Kinetic Light and Lichen Community Systems
+Copyright 2025-6 The pio-i2s Contributors.
 Licensed under the BSD-3 License.
 */
 
 #include <stdlib.h>
 #include "hardware/clocks.h"
+#include "hardware/dma.h"
 #include "../pio-i2s.h"
 #include "synth.h"
 
+// The CPU clock speed in kilohertz.
+// 153.6 MHz is an exact division of 25 with a 48 KHz stream.
 #define CPU_CLOCK_SPEED_KHZ 153600
 #define BLOCK_SIZE 48
 #define DOUBLE_BUFFER_SIZE (BLOCK_SIZE * PioI2S_NUM_CHANNELS * 2)
@@ -20,6 +23,7 @@ PioI2S_Config i2sConfig = {
     .bitDepth = 32,
     .sampleRate = 48000,
     .blockSize = BLOCK_SIZE,
+    .dmaIRQ = DMA_IRQ_0,
     .pio = pio0
 };
 

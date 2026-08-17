@@ -1,4 +1,10 @@
 #!/bin/sh
 
-export PICO_SDK_PATH=`pwd`/lib/pico-sdk
-cmake -B build-docker "$@" && (cd build-docker && make -j4)
+# Usage: ./docker-compile.sh [extra cmake configure args...]
+
+set -eu
+
+SCRIPT_DIR=$(CDPATH= cd "$(dirname "$0")" && pwd)
+
+cmake -S "$SCRIPT_DIR" -B "$SCRIPT_DIR/build-docker" "$@"
+cmake --build "$SCRIPT_DIR/build-docker" -j

@@ -1,5 +1,5 @@
 /*
-* Copyright 2025 Kinetic Light and Lichen Community Systems
+* Copyright 2025-6 The pio-i2s Contributors.
 * Licensed under the BSD-3 License.
 */
 
@@ -9,7 +9,7 @@
 #define TABLE_SIZE 2048
 #define TWO_PI 6.28318530718f
 
-inline float interpoloateLinear(float idx, float* table, size_t length) {
+inline float interpolateLinear(float idx, float* table, size_t length) {
     int32_t idxIntegral = (int32_t) idx;
     float idxFractional = idx - (float) idxIntegral;
     float a = table[idxIntegral];
@@ -44,7 +44,7 @@ template <size_t size> class Wavetable {
 
     inline float readLinear(float normalizedIndex) {
         float index = normalizedIndex * (float) size;
-        return interpoloateLinear(index, this->table, size);
+        return interpolateLinear(index, this->table, size);
     }
 };
 

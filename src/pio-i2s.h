@@ -1,5 +1,5 @@
 /*
-* Copyright 2025 Kinetic Light and Lichen Community Systems
+* Copyright 2025-6 The pio-i2s Contributors.
 * Licensed under the BSD-3 License.
 */
 
@@ -10,14 +10,10 @@
 extern "C" {
 #endif
 
-/** Compiled version of pio_i2s_out.pio */
+// Compiled version of pio_i2s_out.pio
 #if !PICO_NO_HARDWARE
-#include "hardware/pio.h"
+#include <hardware/pio.h>
 #endif
-
-// ---------- //
-// PioI2S_out //
-// ---------- //
 
 #define PioI2S_out_wrap_target 0
 #define PioI2S_out_wrap 7
@@ -56,7 +52,7 @@ static inline pio_sm_config PioI2S_out_program_get_default_config(uint offset) {
     return c;
 }
 #endif
-/** End compiled version of pio_i2s_out.pio */
+// End compiled version of pio_i2s_out.pio
 
 
 #define PioI2S_PIO_INSTRUCTIONS_PER_BIT 2
@@ -79,13 +75,15 @@ struct PioI2S_Config {
 
     /**
      * @brief The bit depth to use.
+     *
      * This must match the bit depth supported by your I2S device.
-     * Note currently only 32 bit samples are supported.
+     * Note: currently only 32 bit samples are supported.
      */
     int bitDepth;
 
     /**
      * @brief The sample rate in Hz.
+     *
      * This must match a sample rate supported by your I2S device.
      */
     int32_t sampleRate;
@@ -94,6 +92,11 @@ struct PioI2S_Config {
      * @brief The audio sample block size to use.
      */
     int blockSize;
+
+    /**
+     * @brief The DMA interrupt to use (DMA_IRQ_0 or DMA_IRQ_1).
+     */
+    uint dmaIRQ;
 
     /**
      * @brief The PIO instance to use.
@@ -117,6 +120,11 @@ struct PioI2S {
     int sm;
 
     /**
+     * @brief The instruction memory offset where the I2S program was loaded.
+     */
+    int programOffset;
+
+    /**
      * @brief The index of the data DMA channel.
      */
     int dataChannel;
@@ -137,7 +145,19 @@ struct PioI2S {
     size_t doubleBufferSize;
 
     /**
-     * @brief The output buffer, which must be twice the size of a stereo block.The client is responsible for allocating this buffer.
+     * @brief The monotonic hardware clock time when I2S started.
+     */
+    uint64_t startTime;
+
+    /**
+     * @brief The number of completed DMA block transfers.
+     */
+    uint64_t numBlocksTransferred;
+
+    /**
+     * @brief The output buffer, which must be twice the size of a stereo block.
+     *
+     * The caller is responsible for allocating this buffer.
      */
     int32_t* outputDoubleBuffer;
 
@@ -155,6 +175,11 @@ struct PioI2S {
      * @brief A pointer to the DMA interrupt handler function.
      */
     void(*dmaHandler)(void);
+
+    /**
+     * @brief The DMA interrupt index.
+     */
+    uint dmaIRQIdx;
 };
 
 /**
@@ -223,8 +248,10 @@ void PioI2S_init(struct PioI2S* self, struct PioI2S_Config* config,
 void PioI2S_start(struct PioI2S* self);
 
 /**
- * @brief Gets the output buffer that needs to be refilled during the
- * current DMA interrupt.
+ * @brief Selects the output buffer to refill during the current DMA interrupt.
+ *
+ * If `PioI2S_ZERO_ON_UNDERRUN` is defined, the buffer is zeroed before it is
+ * returned.
  *
  * This function should only be called within your I2S DMA interrupt handler.
  *
@@ -235,6 +262,7 @@ int32_t* PioI2S_nextOutputBuffer(struct PioI2S* self);
 
 /**
  * @brief Clears the DMA interrupt flag for the data channel.
+ *
  * Call this function at the end of your I2S DMA interrupt handler.
  *
  * @param self the PioI2S instance
@@ -242,8 +270,9 @@ int32_t* PioI2S_nextOutputBuffer(struct PioI2S* self);
 void PioI2S_endDMAInterruptHandler(struct PioI2S* self);
 
 /**
- * @brief Converts a float sample in the range of 1.0 to -1.0 to a 32-bit
- * signed integer.
+ * @brief Converts a float sample between -1.0 and 1.0 to a 32-bit signed integer.
+ *
+ * This function will rounding toward zero, saturate out of range samples, convert NaN to 0.
  *
  * @param sample the sample to convert
  * @return int32_t the converted sample
@@ -253,7 +282,7 @@ int32_t PioI2s_floatToInt32(float sample);
 /**
  * @brief Writes a stereo pair of samples to an interleaved output buffer.
  *
- *  @param left the left channel sample
+ * @param left the left channel sample
  * @param right the right channel sample
  * @param interleavedOutput the output buffer to write into
  * @param i the audio frame index

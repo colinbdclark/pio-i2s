@@ -1,0 +1,27 @@
+;
+; Copyright 2025-6 The pio-i2s Contributors.
+; Licensed under the BSD-3 License.
+;
+; A capture program used by the loopback tests to sample the I2S signals
+; produced by the library under test.
+;
+; The library outputs BCLK on GP10, which must be jumpered to GP21 (see
+; test/shared/loopback-tests.h). The program samples the configured IN
+; pin once per BCLK cycle, on the rising edge:
+;
+;   1. wait for a rising edge of BCLK
+;   2. sample the data pin
+;   3. wait for the falling edge of BCLK
+;
+; The waits use the absolute GPIO number (not the IN-base-relative pin
+; number), because each capture state machine configures a different IN
+; base pin and only GP21 is wired to BCLK.
+;
+; With in-shift configured for right shift and a push threshold of 32
+; (sm_config_set_in_shift(config, false, true, 32)), each pushed word
+; contains 32 consecutive samples with the first sample in bit 31.
+;
+.program capture
+    wait 1 gpio 21
+    in pins, 1
+    wait 0 gpio 21
