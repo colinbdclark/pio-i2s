@@ -8,14 +8,14 @@ Licensed under the BSD-3 License.
 .side_set 2
 
 public entry_point:
-    pull noblock            side 0b00
+    pull block              side 0b00
     set x, 30               side 0b01
 
     outputLeft:
         out pins, 1         side 0b00
         jmp x-- outputLeft  side 0b01
 
-    pull noblock            side 0b10
+    pull block              side 0b10
     set x, 30               side 0b11
 
     outputRight:

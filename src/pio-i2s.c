@@ -146,16 +146,6 @@ void PioI2S_init(struct PioI2S* self, struct PioI2S_Config* config,
 void PioI2S_start(struct PioI2S* self) {
     self->startTime = time_us_64();
     dma_channel_start(self->controlChannel);
-
-    // The program's first instruction is a non-blocking pull,
-    // which substitutes scratch X when the FIFO is empty instead of waiting.
-    // Enabling the state machine before DMA has delivered a sample would consume
-    // that substitute as the left channel, leaving real samples one channel late
-    // for the rest of the stream.
-    while (pio_sm_is_tx_fifo_empty(self->config->pio, self->sm)) {
-        tight_loop_contents();
-    }
-
     pio_sm_set_enabled(self->config->pio, self->sm, true);
 }
 

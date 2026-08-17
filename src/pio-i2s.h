@@ -23,11 +23,11 @@ extern "C" {
 
 static const uint16_t PioI2S_out_program_instructions[] = {
             //     .wrap_target
-    0x8080, //  0: pull   noblock         side 0
+    0x80a0, //  0: pull   block           side 0
     0xe83e, //  1: set    x, 30           side 1
     0x6001, //  2: out    pins, 1         side 0
     0x0842, //  3: jmp    x--, 2          side 1
-    0x9080, //  4: pull   noblock         side 2
+    0x90a0, //  4: pull   block           side 2
     0xf83e, //  5: set    x, 30           side 3
     0x7001, //  6: out    pins, 1         side 2
     0x1846, //  7: jmp    x--, 6          side 3

@@ -188,5 +188,14 @@ Use `--no-flash` to re-read results from running firmware. To adjust the result 
 ./run-all-tests.sh
 ```
 
+## Contributing
+
+### Responsibilities
+
+Large language models are complex and ambivalent tools that have had significant impact on the culture of open source development. The project does accept code that was written with the assistance of coding agents. However, when you write software using LLMs, you are responsible for the code you create with it. We expect all contributors to understand and be able to explain the code they develop, and to articulate the rationale for decisions they've made. If you aren't familiar with the code you or your agent wrote, please don't submit a pull request.
+
+This project will not accept code submitted by non-human agents.
+
 ## License
+
 This repository is released under the BSD-3 license.

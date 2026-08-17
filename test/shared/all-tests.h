@@ -16,6 +16,7 @@
 #endif
 
 #ifdef PIOI2S_TEST_DEVICE
+#include "pio-program-tests.h"
 #include "hardware-tests.h"
 #include "loopback-tests.h"
 #endif
@@ -29,6 +30,7 @@ static inline void runAllTests(void) {
 #endif
     runInitTests();
 #ifdef PIOI2S_TEST_DEVICE
+    runPioProgramTests();
     runHardwareTests();
     runLoopbackTests();
 #endif
