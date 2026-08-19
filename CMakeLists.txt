@@ -32,6 +32,11 @@ target_include_directories(pio-i2s-lib PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/include
 )
 
+if(PIOI2S_CONFIG_INCLUDE_DIRS)
+    target_include_directories(pio-i2s-lib BEFORE PRIVATE
+        ${PIOI2S_CONFIG_INCLUDE_DIRS})
+endif()
+
 target_link_libraries(pio-i2s-lib PUBLIC
     pico_stdlib
     hardware_pio

@@ -26,7 +26,15 @@ Alternatively, copy ```include/pio-i2s.h```, ```include/pio-i2s-config.h```, ```
 
 ### Configuration
 
-To configure pio-i2s, refer to ````include/pio-i2s-config.h```. Add a header to your project that defines configuration values. It must come earlier on the include path than the library's own configuration file.
+To configure pio-i2s, place a `pio-i2s-config.h` of your own earlier on the include path than the library's default in `include/pio-i2s-config.h`. When using CMake to link to  `pio-i2s::lib`, you can set `PIOI2S_CONFIG_INCLUDE_DIRS` to the directory containing your header before `add_subdirectory()`:
+
+```cmake
+set(PIOI2S_CONFIG_INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/config)
+add_subdirectory(lib/pio-i2s)
+target_link_libraries(your-firmware pio-i2s::lib)
+```
+
+The header defines the configuration values:
 
 ```c
 #define PioI2S_ZERO_ON_UNDERRUN 1
