@@ -10,50 +10,7 @@
 extern "C" {
 #endif
 
-// Compiled version of pio_i2s_out.pio
-#if !PICO_NO_HARDWARE
-#include <hardware/pio.h>
-#endif
-
-#define PioI2S_out_wrap_target 0
-#define PioI2S_out_wrap 7
-#define PioI2S_out_pio_version 1
-
-#define PioI2S_out_offset_entry_point 0u
-
-static const uint16_t PioI2S_out_program_instructions[] = {
-            //     .wrap_target
-    0x80a0, //  0: pull   block           side 0
-    0xe83e, //  1: set    x, 30           side 1
-    0x6001, //  2: out    pins, 1         side 0
-    0x0842, //  3: jmp    x--, 2          side 1
-    0x90a0, //  4: pull   block           side 2
-    0xf83e, //  5: set    x, 30           side 3
-    0x7001, //  6: out    pins, 1         side 2
-    0x1846, //  7: jmp    x--, 6          side 3
-            //     .wrap
-};
-
-#if !PICO_NO_HARDWARE
-static const struct pio_program PioI2S_out_program = {
-    .instructions = PioI2S_out_program_instructions,
-    .length = 8,
-    .origin = -1,
-    .pio_version = PioI2S_out_pio_version,
-#if PICO_PIO_VERSION > 0
-    .used_gpio_ranges = 0x0
-#endif
-};
-
-static inline pio_sm_config PioI2S_out_program_get_default_config(uint offset) {
-    pio_sm_config c = pio_get_default_sm_config();
-    sm_config_set_wrap(&c, offset + PioI2S_out_wrap_target, offset + PioI2S_out_wrap);
-    sm_config_set_sideset(&c, 2, false, false);
-    return c;
-}
-#endif
-// End compiled version of pio_i2s_out.pio
-
+#include "pio-i2s-out.pio.h"
 
 #define PioI2S_PIO_INSTRUCTIONS_PER_BIT 2
 #define PioI2S_NUM_CHANNELS 2
@@ -250,8 +207,8 @@ void PioI2S_start(struct PioI2S* self);
 /**
  * @brief Selects the output buffer to refill during the current DMA interrupt.
  *
- * If `PioI2S_ZERO_ON_UNDERRUN` is defined, the buffer is zeroed before it is
- * returned.
+ * If `PioI2S_ZERO_ON_UNDERRUN` is set to 1 in pio-i2s-config.h, the buffer is
+ * zeroed before it is returned.
  *
  * This function should only be called within your I2S DMA interrupt handler.
  *

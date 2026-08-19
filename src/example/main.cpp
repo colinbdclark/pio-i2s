@@ -6,7 +6,7 @@ Licensed under the BSD-3 License.
 #include <stdlib.h>
 #include "hardware/clocks.h"
 #include "hardware/dma.h"
-#include "../pio-i2s.h"
+#include <pio-i2s.h>
 #include "synth.h"
 
 // The CPU clock speed in kilohertz.

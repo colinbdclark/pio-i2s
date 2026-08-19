@@ -16,7 +16,7 @@ target_compile_definitions(unity PUBLIC UNITY_SUPPORT_64=1)
 
 add_library(pio_i2s STATIC ${CMAKE_CURRENT_SOURCE_DIR}/../src/pio-i2s.c)
 target_include_directories(pio_i2s PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/../src
+    ${CMAKE_CURRENT_SOURCE_DIR}/../include
     ${CMAKE_CURRENT_SOURCE_DIR}/host/mocks
 )
 target_compile_definitions(pio_i2s PUBLIC

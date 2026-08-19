@@ -10,7 +10,8 @@
 #include <hardware/clocks.h>
 #include <hardware/dma.h>
 #include <hardware/irq.h>
-#include "pio-i2s.h"
+#include <pio-i2s-config.h>
+#include <pio-i2s.h>
 
 float PioI2S_calculateClockDivision(struct PioI2S* self) {
     float clockSpeed = (float) clock_get_hz(clk_sys);
@@ -152,7 +153,7 @@ void PioI2S_start(struct PioI2S* self) {
 inline int32_t* PioI2S_nextOutputBuffer(struct PioI2S* self) {
     int32_t* bufferToFill = self->bufferPointers[self->bufferPointerIdx];
     self->bufferPointerIdx = 1 - self->bufferPointerIdx;
-#ifdef PioI2S_ZERO_ON_UNDERRUN
+#if PioI2S_ZERO_ON_UNDERRUN
     memset(bufferToFill, 0, self->stereoBlockSize * sizeof(*bufferToFill));
 #endif
     return bufferToFill;

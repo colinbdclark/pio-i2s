@@ -29,8 +29,27 @@ add_compile_options(-Wall)
 
 pico_sdk_init()
 
-set(SOURCE_FILES
+set(LIB_NAME ${NAME}-lib)
+
+add_library(${LIB_NAME} STATIC
     src/pio-i2s.c
+)
+
+target_include_directories(${LIB_NAME} PUBLIC
+    ${CMAKE_CURRENT_LIST_DIR}/include
+)
+
+target_link_libraries(${LIB_NAME} PUBLIC
+    pico_stdlib
+    hardware_pio
+    hardware_dma
+    hardware_irq
+)
+
+set_source_files_properties(src/pio-i2s.c PROPERTIES
+    COMPILE_OPTIONS "-Wextra;-Wpedantic")
+
+set(SOURCE_FILES
     src/example/main.cpp
 )
 
@@ -38,18 +57,11 @@ add_executable(${NAME}
     ${SOURCE_FILES}
 )
 
-pico_generate_pio_header(${NAME}
-    ${CMAKE_CURRENT_LIST_DIR}/src/pio-i2s-out.pio
-)
-
 set_source_files_properties(${SOURCE_FILES} PROPERTIES COMPILE_OPTIONS "-Wextra;-Wpedantic")
 
 target_link_libraries(${NAME}
+    ${LIB_NAME}
     pico_bootsel_via_double_reset
-    pico_stdlib
-    hardware_pio
-    hardware_dma
-    hardware_irq
 )
 
 target_compile_definitions(${NAME} PRIVATE)

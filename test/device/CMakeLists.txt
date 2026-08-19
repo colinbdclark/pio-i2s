@@ -4,7 +4,6 @@ set(TEST_NAME pio-i2s-tests)
 
 add_executable(${TEST_NAME}
     main.c
-    generated-pio-program.c
     ../shared/test-support.c
     ../unity/unity.c
     ../../src/pio-i2s.c
@@ -20,7 +19,7 @@ target_include_directories(${TEST_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/../shared
     ${CMAKE_CURRENT_SOURCE_DIR}/../unity
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../src
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../include
 )
 
 # UNITY_SUPPORT_64 enables Unity's 64-bit assertions.
@@ -45,12 +44,6 @@ target_link_libraries(${TEST_NAME}
 
 pico_generate_pio_header(${TEST_NAME}
     ${CMAKE_CURRENT_LIST_DIR}/capture.pio
-)
-
-# Assembled fresh so the tests can compare it against the copy embedded in
-# pio-i2s.h.
-pico_generate_pio_header(${TEST_NAME}
-    ${CMAKE_CURRENT_LIST_DIR}/../../src/pio-i2s-out.pio
 )
 
 pico_add_extra_outputs(${TEST_NAME})

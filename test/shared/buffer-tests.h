@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "unity.h"
+#include <pio-i2s-config.h>
 #include "pio-i2s.h"
 #include "test-support.h"
 
@@ -30,7 +31,7 @@ static void testNextOutputBufferAlternates(void) {
     TEST_ASSERT_EQUAL_PTR(&output[0], PioI2S_nextOutputBuffer(&self));
 }
 
-#ifdef PioI2S_ZERO_ON_UNDERRUN
+#if PioI2S_ZERO_ON_UNDERRUN
 static void testNextOutputBufferZeroesOnUnderrun(void) {
     struct PioI2S self = {0};
     struct PioI2S_Config config = testDefaultConfig();
@@ -74,7 +75,7 @@ static void testEndDMAInterruptHandlerIncrementsBlockCount(void) {
 
 static inline void runBufferTests(void) {
     RUN_TEST(testNextOutputBufferAlternates);
-#ifdef PioI2S_ZERO_ON_UNDERRUN
+#if PioI2S_ZERO_ON_UNDERRUN
     RUN_TEST(testNextOutputBufferZeroesOnUnderrun);
 #endif
     RUN_TEST(testEndDMAInterruptHandlerIncrementsBlockCount);
