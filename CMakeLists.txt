@@ -1,45 +1,38 @@
 cmake_minimum_required(VERSION 3.12...3.30)
 
-set(NAME pio-i2s)
+# SDK setup must precede project() and only run for the standalone build.
+# PROJECT_IS_TOP_LEVEL is not set until project(), so compare source dirs here.
+if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+    set(PICO_PLATFORM rp2350)
+    set(PICO_BOARD pico2_w)
 
-set(PICO_PLATFORM rp2350)
-set(PICO_BOARD pico2_w)
+    if(NOT CMAKE_BUILD_TYPE)
+        set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type" FORCE)
+    endif()
 
-# Set the default build type to Debug if not specified
-if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type" FORCE)
+    set(PICO_SDK_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lib/pico-sdk)
+    include(${PICO_SDK_PATH}/external/pico_sdk_import.cmake)
 endif()
 
-# Specify the compiler to use
-if(DEFINED ENV{PICO_TOOLCHAIN_PATH})
-    set(CMAKE_C_COMPILER "$ENV{PICO_TOOLCHAIN_PATH}/bin/arm-none-eabi-gcc")
-    set(CMAKE_CXX_COMPILER "$ENV{PICO_TOOLCHAIN_PATH}/bin/arm-none-eabi-g++")
+project(pio-i2s C CXX ASM)
+
+if(PROJECT_IS_TOP_LEVEL)
+    set(CMAKE_C_STANDARD 11)
+    set(CMAKE_CXX_STANDARD 20)
+    add_compile_options(-Wall)
+
+    pico_sdk_init()
 endif()
 
-# Set up the Pico SDK
-set(PICO_SDK_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lib/pico-sdk)
-include(${PICO_SDK_PATH}/external/pico_sdk_import.cmake)
-include(${PICO_SDK_PATH}/pico_sdk_init.cmake)
-
-# Compiler settings
-project(${NAME} C CXX ASM)
-set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 20)
-add_compile_options(-Wall)
-
-pico_sdk_init()
-
-set(LIB_NAME ${NAME}-lib)
-
-add_library(${LIB_NAME} STATIC
+add_library(pio-i2s-lib STATIC
     src/pio-i2s.c
 )
 
-target_include_directories(${LIB_NAME} PUBLIC
+target_include_directories(pio-i2s-lib PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/include
 )
 
-target_link_libraries(${LIB_NAME} PUBLIC
+target_link_libraries(pio-i2s-lib PUBLIC
     pico_stdlib
     hardware_pio
     hardware_dma
@@ -49,34 +42,32 @@ target_link_libraries(${LIB_NAME} PUBLIC
 set_source_files_properties(src/pio-i2s.c PROPERTIES
     COMPILE_OPTIONS "-Wextra;-Wpedantic")
 
-set(SOURCE_FILES
-    src/example/main.cpp
-)
+add_library(pio-i2s::lib ALIAS pio-i2s-lib)
 
-add_executable(${NAME}
-    ${SOURCE_FILES}
-)
+if(PROJECT_IS_TOP_LEVEL)
+    add_executable(pio-i2s
+        src/example/main.cpp
+    )
 
-set_source_files_properties(${SOURCE_FILES} PROPERTIES COMPILE_OPTIONS "-Wextra;-Wpedantic")
+    set_source_files_properties(src/example/main.cpp PROPERTIES
+        COMPILE_OPTIONS "-Wextra;-Wpedantic")
 
-target_link_libraries(${NAME}
-    ${LIB_NAME}
-    pico_bootsel_via_double_reset
-)
+    target_link_libraries(pio-i2s
+        pio-i2s-lib
+        pico_bootsel_via_double_reset
+    )
 
-target_compile_definitions(${NAME} PRIVATE)
+    pico_add_extra_outputs(pio-i2s)
 
-pico_add_extra_outputs(${NAME})
+    add_subdirectory(test/device)
 
-# On-device unit tests
-add_subdirectory(test/device)
+    install(FILES
+        ${CMAKE_CURRENT_BINARY_DIR}/pio-i2s.uf2
+        ${CMAKE_CURRENT_LIST_DIR}/README.md
+        DESTINATION .
+    )
 
-install(FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/${NAME}.uf2
-    ${CMAKE_CURRENT_LIST_DIR}/README.md
-    DESTINATION .
-)
-
-set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY OFF)
-set(CPACK_GENERATOR "ZIP" "TGZ")
-include(CPack)
+    set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY OFF)
+    set(CPACK_GENERATOR "ZIP" "TGZ")
+    include(CPack)
+endif()

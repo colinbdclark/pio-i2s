@@ -15,11 +15,11 @@ This is an early stage project and is still under development. It has only been 
 
 ## Using PioI2S
 
-For a CMake-based build system, you can refer to pio-i2s as a submodule and link the ```pio-i2s-lib``` library target:
+For a CMake-based build system, you can refer to pio-i2s as a submodule and link the ```pio-i2s::lib``` library target:
 
 ```cmake
 add_subdirectory(lib/pio-i2s)
-target_link_libraries(your-firmware pio-i2s-lib)
+target_link_libraries(your-firmware pio-i2s::lib)
 ```
 
 Alternatively, copy ```include/pio-i2s.h```, ```include/pio-i2s-config.h```, ```include/pio-i2s-out.pio.h```, and ```src/pio-i2s.c``` into your project and build them however you prefer.
